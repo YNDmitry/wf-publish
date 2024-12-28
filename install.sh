@@ -95,7 +95,7 @@ echo_info "Installing main.bin in $BIN_PATH..."
 cp "$INSTALL_DIR/main.dist/main.bin" "$BIN_PATH"
 chmod +x "$BIN_PATH"
 
-ln -sf "$BIN_PATH" /usr/local/bin/wf-publish
+# ln -sf "$BIN_PATH" /usr/local/bin/wf-publish
 
 echo_success "The installation is complete. You can now use 'wf-publish'."
 echo_info "To run it, use the command: wf-publish inside the project folder"
