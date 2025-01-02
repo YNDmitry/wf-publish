@@ -2,7 +2,6 @@
 
 set -e
 
-# Функции для вывода сообщений
 echo_info() {
     echo -e "\033[1;34m$1\033[0m"
 }
@@ -15,7 +14,6 @@ echo_error() {
     echo -e "\033[0;31m$1\033[0m" >&2
 }
 
-# Проверка запуска от root
 if [ "$(id -u)" != "0" ]; then
     echo_error "Please run this script with sudo."
     exit 1
@@ -23,7 +21,7 @@ fi
 
 GITHUB_USER="yndmitry"
 GITHUB_REPO="wf-publish"
-BRANCH="master" # Или другая ветка
+BRANCH="master"
 INSTALL_DIR="/usr/local/share/wf-publish"
 BIN_PATH="/usr/local/bin/wf-publish"
 TMP_DIR=$(mktemp -d)
@@ -65,7 +63,6 @@ esac
 
 echo_info "Downloading a repository from GitHub..."
 
-# URL для скачивания архива репозитория
 TARBALL_URL="https://github.com/${GITHUB_USER}/${GITHUB_REPO}/archive/refs/heads/${BRANCH}.tar.gz"
 
 echo_info "Downloading the archive: $TARBALL_URL"
@@ -74,7 +71,6 @@ curl -L "$TARBALL_URL" -o "$TMP_DIR/repo.tar.gz"
 echo_info "Unpacking the archive..."
 tar -xzf "$TMP_DIR/repo.tar.gz" -C "$TMP_DIR"
 
-# Определение распакованной директории
 EXTRACTED_DIR="$TMP_DIR/${GITHUB_REPO}-${BRANCH}"
 
 if [ ! -d "$EXTRACTED_DIR/main.dist" ]; then
