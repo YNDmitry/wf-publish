@@ -91,7 +91,9 @@ cp -r "$EXTRACTED_DIR/main.dist" "$INSTALL_DIR/"
 # cp "$INSTALL_DIR/main.dist/main.bin" "$BIN_PATH"
 # chmod +x "$BIN_PATH"
 
-ln -sf "$BIN_PATH" /usr/local/bin/wf-publish
+echo_info "Installing main.bin in $BIN_PATH..."
+ln -sf "$INSTALL_DIR/main.dist/main.bin" "$BIN_PATH"
+chmod +x "$BIN_PATH"
 
 echo_success "The installation is complete. You can now use 'wf-publish'."
 echo_info "To run it, use the command: wf-publish inside the project folder, or test it <wf-publish --help>"
