@@ -87,10 +87,6 @@ echo_info "Installing the main.dist folder in $INSTALL_DIR..."
 mkdir -p "$INSTALL_DIR"
 cp -r "$EXTRACTED_DIR/main.dist" "$INSTALL_DIR/"
 
-# echo_info "Installing main.bin in $BIN_PATH..."
-# cp "$INSTALL_DIR/main.dist/main.bin" "$BIN_PATH"
-# chmod +x "$BIN_PATH"
-
 echo_info "Installing main.bin in $BIN_PATH..."
 ln -sf "$INSTALL_DIR/main.dist/main.bin" "$BIN_PATH"
 chmod +x "$BIN_PATH"
