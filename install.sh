@@ -88,7 +88,7 @@ mkdir -p "$INSTALL_DIR"
 cp -r "$EXTRACTED_DIR/build_universal2/main.dist" "$INSTALL_DIR/"
 
 echo_info "Installing main.bin in $BIN_PATH..."
-ln -sf "$INSTALL_DIR/build_universal2/main.dist/main.bin" "$BIN_PATH"
+ln -sf "$INSTALL_DIR/main.dist/main.bin" "$BIN_PATH"
 chmod +x "$BIN_PATH"
 
 echo_success "The installation is complete. You can now use 'wf-publish'."
