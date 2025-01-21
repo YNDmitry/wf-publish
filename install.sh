@@ -73,19 +73,19 @@ tar -xzf "$TMP_DIR/repo.tar.gz" -C "$TMP_DIR"
 
 EXTRACTED_DIR="$TMP_DIR/${GITHUB_REPO}-${BRANCH}"
 
-if [ ! -d "$EXTRACTED_DIR/build_universal2/main.dist" ]; then
+if [ ! -d "$EXTRACTED_DIR/build_universal/main.dist" ]; then
     echo_error "The main.dist folder is not found in the repository."
     exit 1
 fi
 
-if [ ! -f "$EXTRACTED_DIR/build_universal2/main.dist/main.bin" ]; then
+if [ ! -f "$EXTRACTED_DIR/build_universal/main.dist/main.bin" ]; then
     echo_error "The main.bin file is not found in the main.dist folder."
     exit 1
 fi
 
 echo_info "Installing the main.dist folder in $INSTALL_DIR..."
 mkdir -p "$INSTALL_DIR"
-cp -r "$EXTRACTED_DIR/build_universal2/main.dist" "$INSTALL_DIR/"
+cp -r "$EXTRACTED_DIR/build_universal/main.dist" "$INSTALL_DIR/"
 
 echo_info "Installing main.bin in $BIN_PATH..."
 ln -sf "$INSTALL_DIR/main.dist/main.bin" "$BIN_PATH"
