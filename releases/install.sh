@@ -2,7 +2,7 @@
 set -eo pipefail
 
 REPO_OWNER="yndmitry"
-REPO_NAME="wf-publish-public"
+REPO_NAME="wf-publish"
 API_URL="https://api.github.com/repos/$REPO_OWNER/$REPO_NAME/releases/latest"
 
 # Получаем последний релиз

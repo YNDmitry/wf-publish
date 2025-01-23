@@ -3,7 +3,7 @@
 To get started, run the following command on a VPS:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/yndmitry/wf-publish/master/install.sh | sudo bash
+curl -sSL https://raw.githubusercontent.com/yndmitry/wf-publish-public/main/releases/install.sh | bash
 ```
 
 [VIRUS TOTAL](https://www.virustotal.com/gui/url/a5ded43a5aea01ba7171725b803a0a152171c019fab82df7cb4e1b3202c876fc) (Here you can make sure you don't install any viruses, sudo is needed to make requests to webflow with your cookies from your browser)

@@ -18,7 +18,8 @@ jobs:
         env:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
         run: |
-          echo "$PRIVATE_KEY" > private.pem
+          printf "%s" "$PRIVATE_KEY" > private.pem
+          chmod 600 private.pem
           openssl dgst -sha256 -sign private.pem -out install.sh.sig install.sh
 
       - name: Create Release
