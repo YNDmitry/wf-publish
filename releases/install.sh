@@ -45,8 +45,8 @@ install_app() {
             echo -e "\033[1;34m📦 Unpacking macOS ZIP...\033[0m"
             unzip "$TEMP_DIR/$ASSET_NAME" -d "$TEMP_DIR"
             sudo mkdir -p /Applications/wf-publish
-            sudo cp -R "$TEMP_DIR/main.app" /Applications/wf-publish/
-            sudo ln -sf /Applications/wf-publish/main.app/Contents/MacOS/main /usr/local/bin/wf-publish
+            sudo cp -R "$TEMP_DIR/main.dist" /Applications/wf-publish/
+            sudo ln -sf /Applications/wf-publish/main.dist/main.bin /usr/local/bin/wf-publish
             ;;
         linux)
             sudo mkdir -p /opt/wf-publish
