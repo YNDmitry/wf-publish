@@ -1,0 +1,29 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  sign-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup OpenSSL
+        run: sudo apt-get install openssl -y
+
+      - name: Sign files
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+        run: |
+          echo "$PRIVATE_KEY" > private.pem
+          openssl dgst -sha256 -sign private.pem -out install.sh.sig install.sh
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            install.sh.sig
+            build_universal/main.dist/*
