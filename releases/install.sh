@@ -20,7 +20,7 @@ esac
 # Функции
 cleanup() {
     rm -rf "$TEMP_DIR"
-    echo -e "\033[1;33m⚠️ Temporary files cleaned\033[0m"
+    echo -e "\033[1;33m⚠️ Временные файлы очищены\033[0m"
 }
 
 error() {
@@ -31,9 +31,9 @@ error() {
 
 # Проверка зависимостей
 check_deps() {
-    for cmd in curl gpg unzip tar; do
+    for cmd in curl gpg unzip tar jq; do
         if ! command -v $cmd &> /dev/null; then
-            error "Missing required command: $cmd"
+            error "Отсутствует необходимая команда: $cmd"
         fi
     done
 }
@@ -42,9 +42,11 @@ check_deps() {
 install_app() {
     case $OS in
         darwin)
-            sudo mkdir -p /usr/local/share/wf-publish
-            sudo cp -R "$TEMP_DIR/main.app" /usr/local/share/wf-publish/
-            sudo ln -sf /usr/local/share/wf-publish/main.app/Contents/MacOS/main /usr/local/bin/wf-publish
+            echo -e "\033[1;34m📦 Распаковка macOS ZIP...\033[0m"
+            unzip "$TEMP_DIR/$ASSET_NAME" -d "$TEMP_DIR"
+            sudo mkdir -p /Applications/wf-publish
+            sudo cp -R "$TEMP_DIR/main.app" /Applications/wf-publish/
+            sudo ln -sf /Applications/wf-publish/main.app/Contents/MacOS/main /usr/local/bin/wf-publish
             ;;
         linux)
             sudo mkdir -p /opt/wf-publish
@@ -52,7 +54,7 @@ install_app() {
             sudo ln -sf /opt/wf-publish/main /usr/local/bin/wf-publish
             ;;
         *)
-            error "Unsupported OS: $OS"
+            error "Не поддерживаемая ОС: $OS"
             ;;
     esac
 }
@@ -60,8 +62,8 @@ install_app() {
 # Импорт GPG ключа
 import_gpg_key() {
     if ! gpg --list-keys "$REPO_OWNER" &> /dev/null; then
-        echo -e "\033[1;36m🔑 Importing GPG key...\033[0m"
-        curl -sSL "$GPG_KEY_URL" | gpg --import - || error "Failed to import GPG key"
+        echo -e "\033[1;36m🔑 Импортирование GPG ключа...\033[0m"
+        curl -sSL "$GPG_KEY_URL" | gpg --import - || error "Не удалось импортировать GPG ключ"
     fi
 }
 
@@ -71,29 +73,36 @@ main() {
     check_deps
     import_gpg_key
 
-    echo -e "\033[1;34m🔍 Checking latest release...\033[0m"
+    echo -e "\033[1;34m🔍 Проверка последнего релиза...\033[0m"
     response=$(curl -sSL "$API_URL")
-    
+
     # Определение имени ассета
-    ASSET_PATTERN="wf-publish-${OS}-${ARCH}.*"
+    if [ "$OS" = "darwin" ]; then
+        ASSET_PATTERN="wf-publish-macos-universal-.*\.zip$"
+    elif [ "$OS" = "linux" ]; then
+        ASSET_PATTERN="wf-publish-linux-.*\.tar\.gz$"
+    else
+        error "Не поддерживаемая ОС: $OS"
+    fi
+
     ASSET_INFO=$(echo "$response" | jq -r ".assets[] | select(.name | test(\"$ASSET_PATTERN\"))")
-    [ -z "$ASSET_INFO" ] && error "No matching asset found for $OS-$ARCH"
+    [ -z "$ASSET_INFO" ] && error "Соответствующий ассет не найден для $OS"
 
     ASSET_NAME=$(echo "$ASSET_INFO" | jq -r '.name')
     DOWNLOAD_URL=$(echo "$ASSET_INFO" | jq -r '.browser_download_url')
-    SIG_URL="${DOWNLOAD_URL}.sig"
+    SIG_URL="${DOWNLOAD_URL}.asc"
 
-    echo -e "\033[1;35m⬇️ Downloading $ASSET_NAME...\033[0m"
+    echo -e "\033[1;35m⬇️ Загрузка $ASSET_NAME...\033[0m"
     curl -L "$DOWNLOAD_URL" -o "$TEMP_DIR/$ASSET_NAME"
-    curl -L "$SIG_URL" -o "$TEMP_DIR/$ASSET_NAME.sig"
+    curl -L "$SIG_URL" -o "$TEMP_DIR/$ASSET_NAME.asc"
 
-    echo -e "\033[1;32m🔒 Verifying signature...\033[0m"
-    gpg --verify "$TEMP_DIR/$ASSET_NAME.sig" "$TEMP_DIR/$ASSET_NAME" || error "Signature verification failed!"
+    echo -e "\033[1;32m🔒 Проверка подписи...\033[0m"
+    gpg --verify "$TEMP_DIR/$ASSET_NAME.asc" "$TEMP_DIR/$ASSET_NAME" || error "Проверка подписи не удалась!"
 
-    echo -e "\033[1;33m🚀 Installing...\033[0m"
+    echo -e "\033[1;33m🚀 Установка...\033[0m"
     install_app
 
-    echo -e "\033[1;32m✅ Successfully installed wf-publish!\033[0m"
+    echo -e "\033[1;32m✅ wf-publish успешно установлен!\033[0m"
     command -v wf-publish && wf-publish --version
 }
 
