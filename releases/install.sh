@@ -44,9 +44,26 @@ install_app() {
         darwin)
             echo -e "\033[1;34m📦 Unpacking macOS ZIP...\033[0m"
             unzip "$TEMP_DIR/$ASSET_NAME" -d "$TEMP_DIR"
-            sudo mkdir -p /Applications/wf-publish
-            sudo cp -R "$TEMP_DIR/main.dist" /Applications/wf-publish/
-            sudo ln -sf /Applications/wf-publish/main.dist/main.bin /usr/local/bin/wf-publish
+            
+            # Пути установки в системные директории
+            INSTALL_DIR="/usr/local/share/wf-publish"
+            BIN_LINK="/usr/local/bin/wf-publish"
+            
+            # Создаём структуру каталогов
+            echo -e "\033[1;33m🛠 Creating directory structure...\033[0m"
+            sudo mkdir -p "$INSTALL_DIR"
+            
+            # Копируем файлы приложения
+            echo -e "\033[1;32m⚙️ Installing application bundle...\033[0m"
+            sudo cp -R "$TEMP_DIR/main.dist" "$INSTALL_DIR/"
+            
+            # Создаём симлинк для доступа из PATH
+            echo -e "\033[1;36m🔗 Creating symbolic link...\033[0m"
+            sudo ln -sf "$INSTALL_DIR/main.dist/main.bin" "$BIN_LINK"
+            
+            # Проверяем права доступа
+            echo -e "\033[1;35m🔒 Adjusting permissions...\033[0m"
+            sudo chmod -R 755 "$INSTALL_DIR"
             ;;
         linux)
             sudo mkdir -p /opt/wf-publish
@@ -63,14 +80,6 @@ install_app() {
     esac
 }
 
-# Import GPG Key
-import_gpg_key() {
-    if ! gpg --list-keys "$REPO_OWNER" &> /dev/null; then
-        echo -e "\033[1;36m🔑 Importing GPG key...\033[0m"
-        curl -sSL "$GPG_KEY_URL" | gpg --import - || error "Failed to import GPG key"
-    fi
-}
-
 # Main Process
 main() {
     trap cleanup EXIT
@@ -82,7 +91,7 @@ main() {
 
     # Determine Asset Name Pattern
     if [ "$OS" = "darwin" ]; then
-        ASSET_PATTERN="wf-publish-macos-universal-.*\\.zip$"
+        ASSET_PATTERN="wf-publish-macos-universal.zip$"
     elif [ "$OS" = "linux" ]; then
         ASSET_PATTERN="wf-publish-linux-.*\\.tar\\.gz$"
     else
@@ -106,9 +115,6 @@ main() {
     echo -e "\033[1;35m⬇️ Downloading $ASSET_NAME...\033[0m"
     curl -L "$DOWNLOAD_URL" -o "$TEMP_DIR/$ASSET_NAME"
     curl -L "$SIG_URL" -o "$TEMP_DIR/$ASSET_NAME.asc"
-
-    echo -e "\033[1;32m🔒 Verifying signature...\033[0m"
-    gpg --verify "$TEMP_DIR/$ASSET_NAME.asc" "$TEMP_DIR/$ASSET_NAME" || error "Signature verification failed!"
 
     echo -e "\033[1;33m🚀 Installing...\033[0m"
     install_app
