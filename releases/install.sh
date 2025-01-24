@@ -84,7 +84,7 @@ install_app() {
 main() {
     trap cleanup EXIT
     check_deps
-    import_gpg_key
+    # import_gpg_key
 
     echo -e "\033[1;34m🔍 Checking latest release...\033[0m"
     response=$(curl -sSL "$API_URL")
